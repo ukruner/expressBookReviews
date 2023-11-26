@@ -76,8 +76,18 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
 regd_users.delete("/auth/review/:isbn", (req, res) => {
   const ISBN = req.params.isbn;
+  const username = req.body.username;
   let reviewList = books[ISBN].reviews;
   let retrievedUsers = reviewList.map(retrieveduser => retrieveduser.username);
+  if (retrievedUsers.includes(username)){
+    reviewList = reviewList.filter((user) => user.username != username)
+    // res.send(`Reviews of user ${username} deleted`);
+    res.send(books[ISBN]);
+  }
+  else{
+    res.send("user not found");
+  }
+  
 });
 
 module.exports.authenticated = regd_users;
