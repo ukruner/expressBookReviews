@@ -41,7 +41,7 @@ regd_users.post("/login", (req,res) => {
   if (authenticatedUser(username,password)) {
     let accessToken = jwt.sign({
       data: password
-    }, 'access', { expiresIn: 60 * 60 });
+    }, 'access', { expiresIn: 3600 });
 
     req.session.authorization = {
       accessToken,username
@@ -52,10 +52,32 @@ regd_users.post("/login", (req,res) => {
   }
 });
 
+
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const review = req.body.review;
+  const username = req.body.username;
+  const ISBN = req.params.isbn;
+  let reviewList = books[ISBN].reviews;
+  let pushIt = {"username": username, "review": review};
+  let retrievedUsers = reviewList.map(retrieveduser => retrieveduser.username);
+    if (retrievedUsers.includes(username)){
+        teststring = "true on first if";
+        reviewList = reviewList.map(retrieveduser => {
+        if (retrieveduser.username === username){
+          teststring = teststring + "and second if";
+          retrieveduser.review = review}})  
+    }  
+      else {
+        reviewList.push(pushIt)
+      };
+  res.status(300).json(books[ISBN])
+});
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const ISBN = req.params.isbn;
+  let reviewList = books[ISBN].reviews;
+  let retrievedUsers = reviewList.map(retrieveduser => retrieveduser.username);
 });
 
 module.exports.authenticated = regd_users;
