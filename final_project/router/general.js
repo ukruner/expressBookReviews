@@ -3,7 +3,8 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
-
+const axios = require("axios");
+const fs = require("fs").promises;
 let bookKeys = Object.keys(books);
 
 public_users.post("/register", (req,res) => {
@@ -22,9 +23,38 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  res.send(JSON.stringify(books,null,6));
-});
+public_users.get('/', async (req, res) => {
+  try {
+    const fPath = "./router/booksdb.js";
+    const fContent = await fs.readFile(fPath, "utf8");
+    const match = fContent.match(/let\s+books\s*=\s*(.+?);/s);
+    if (!match){
+      res.send("JSON data not found");
+    }
+    const JSONData = match[1];
+    const jsonBooks = JSON.parse(JSONData);
+    res.json(jsonBooks);
+  }
+  catch (error){
+    console.error(err);
+    res.status(500).send("Internal server error");
+  }});
+
+
+// public_users.get('/',function  {
+  
+//    => {
+//     if (err) {
+//       console.error(err);
+//       res.status(500).send("Internal server error");
+//       return;
+//     }
+//     else{
+//         res.send(books);
+//     }
+// ;
+// }
+// )}) };
 
 
 // Get book details based on ISBN
