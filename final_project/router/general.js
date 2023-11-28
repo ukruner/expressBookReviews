@@ -1,5 +1,5 @@
 const express = require('express');
-let books = require("./booksdb.js");
+let books = require("./booksdb.json");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
@@ -25,14 +25,9 @@ public_users.post("/register", (req,res) => {
 // Get the book list available in the shop
 public_users.get('/', async (req, res) => {
   try {
-    const fPath = "./router/booksdb.js";
+    const fPath = "./router/booksdb.json";
     const fContent = await fs.readFile(fPath, "utf8");
-    const match = fContent.match(/let\s+books\s*=\s*(.+?);/s);
-    if (!match){
-      res.send("JSON data not found");
-    }
-    const JSONData = match[1];
-    const jsonBooks = JSON.parse(JSONData);
+    const jsonBooks = JSON.parse(fContent);
     res.json(jsonBooks);
   }
   catch (error){
@@ -40,21 +35,6 @@ public_users.get('/', async (req, res) => {
     res.status(500).send("Internal server error");
   }});
 
-
-// public_users.get('/',function  {
-  
-//    => {
-//     if (err) {
-//       console.error(err);
-//       res.status(500).send("Internal server error");
-//       return;
-//     }
-//     else{
-//         res.send(books);
-//     }
-// ;
-// }
-// )}) };
 
 
 // Get book details based on ISBN
