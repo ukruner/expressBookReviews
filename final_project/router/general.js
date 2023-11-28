@@ -1,10 +1,10 @@
 const express = require('express');
-let books = require("./booksdb.json");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
-
 const fs = require("fs").promises;
+
+
 public_users.post("/register", (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -92,9 +92,17 @@ public_users.get('/title/:title', async (req, res) => {
 });
 
 //  Get book review
-public_users.get('/review/:isbn',function (req, res) {
-  const ISBN = req.params.isbn;
-  res.send(books[ISBN].reviews)
-});
+public_users.get('/review/:isbn', async (req, res) => {
+  try {
+    const ISBN = req.params.isbn;
+    const fPath = "./router/booksdb.json";
+    const fContent = await fs.readFile(fPath, "utf8");
+    const jsonBooks = JSON.parse(fContent);
+    res.json(jsonBooks[ISBN].reviews);
+  }
+  catch (error){
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }})
 
 module.exports.general = public_users;
