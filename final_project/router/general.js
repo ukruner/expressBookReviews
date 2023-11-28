@@ -3,10 +3,8 @@ let books = require("./booksdb.json");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
-const axios = require("axios");
-const fs = require("fs").promises;
-let bookKeys = Object.keys(books);
 
+const fs = require("fs").promises;
 public_users.post("/register", (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -31,22 +29,47 @@ public_users.get('/', async (req, res) => {
     res.json(jsonBooks);
   }
   catch (error){
-    console.error(err);
+    console.error(error);
     res.status(500).send("Internal server error");
   }});
 
 
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  const ISBN = req.params.isbn;
-  res.send(books[ISBN])
- });
+public_users.get('/isbn/:isbn', async (req, res) => {
+  try {
+    const ISBN = req.params.isbn;
+    const fPath = "./router/booksdb.json";
+    const fContent = await fs.readFile(fPath, "utf8");
+    const jsonBooks = JSON.parse(fContent);
+    res.json(jsonBooks[ISBN]);
+  }
+  catch (error){
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }});
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  authorKey = bookKeys.filter((keys) => books[keys].author === req.params.author);
-  res.send(books[authorKey]);
+public_users.get('/author/:author', async (req, res) => {
+  try {
+    const fPath = "./router/booksdb.json";
+    const fContent = await fs.readFile(fPath, "utf8");
+    const author = req.params.author;
+    const jsonBooks = JSON.parse(fContent);
+    const bookKeys = Object.keys(jsonBooks);
+    let BooksToReturn = [];
+    let counter = "";
+    BooksToReturn = bookKeys.map((keys) => {
+      if (jsonBooks[keys].author === req.params.author){
+        BooksToReturn.push(jsonBooks[keys])
+        counter += "-";
+      }
+    });
+    res.send(counter)}
+    catch (error) {
+        console.error(error);
+        res.status(500).send("Internal server error");
+    }
 });
 
 // Get all books based on title
