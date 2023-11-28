@@ -58,14 +58,12 @@ public_users.get('/author/:author', async (req, res) => {
     const jsonBooks = JSON.parse(fContent);
     const bookKeys = Object.keys(jsonBooks);
     let BooksToReturn = [];
-    let counter = "";
-    BooksToReturn = bookKeys.map((keys) => {
+    bookKeys.map((keys) => {
       if (jsonBooks[keys].author === req.params.author){
         BooksToReturn.push(jsonBooks[keys])
-        counter += "-";
       }
     });
-    res.send(counter)}
+    res.send(BooksToReturn)}
     catch (error) {
         console.error(error);
         res.status(500).send("Internal server error");
