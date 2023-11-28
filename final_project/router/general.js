@@ -71,9 +71,24 @@ public_users.get('/author/:author', async (req, res) => {
 });
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  titleKey = bookKeys.filter((keys) => books[keys].title === req.params.title);
-  res.send(books[titleKey]);
+public_users.get('/title/:title', async (req, res) => {
+  try {
+    const fPath = "./router/booksdb.json";
+    const fContent = await fs.readFile(fPath, "utf8");
+    const title = req.params.title;
+    const jsonBooks = JSON.parse(fContent);
+    const bookKeys = Object.keys(jsonBooks);
+    let BooksToReturn = [];
+    bookKeys.map((keys) => {
+      if (jsonBooks[keys].title === req.params.title){
+        BooksToReturn.push(jsonBooks[keys])
+      }
+    });
+    res.send(BooksToReturn)}
+    catch (error) {
+        console.error(error);
+        res.status(500).send("Internal server error");
+    }
 });
 
 //  Get book review
